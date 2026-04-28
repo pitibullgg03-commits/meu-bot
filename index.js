@@ -61,7 +61,7 @@ client.on(Events.MessageCreate, async message => {
 
     const button = new ButtonBuilder()
       .setCustomId('verificar')
-      .setLabel('🚀 Verificar-se')
+      .setLabel('🔒 Verificar-se')
       .setStyle(ButtonStyle.Danger);
 
     const row = new ActionRowBuilder().addComponents(button);
@@ -105,4 +105,3 @@ client.on(Events.InteractionCreate, async interaction => {
 
 // 🔐 LOGIN (Render usa variável de ambiente)
 client.login(process.env.TOKEN);
-/*eu amo minha mulher*/
