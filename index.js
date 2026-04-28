@@ -80,4 +80,4 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 });
 
-client.login('MTQ5ODY3MzYxOTk2MDg2MDgxNA.GKjay6.wuOt69hZFIXvae73R-rfxlBTwm12yrCKBFuKkw');
+client.login('MTQ5ODY3MzYxOTk2MDg2MDgxNA.GbtxxU.Xtbt4-XJRBfLG6qjzva1rCVtAaaqdy1u0JIyqM');
