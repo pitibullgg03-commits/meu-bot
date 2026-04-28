@@ -10,13 +10,11 @@ const {
   EmbedBuilder
 } = require('discord.js');
 
-// 👇 CLIENT CORRIGIDO (incluindo GuildMembers que você já usa no código)
+// CLIENT
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers, // ⚠️ necessário pro memberAdd e roles
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
+    GatewayIntentBits.GuildMembers
   ]
 });
 
@@ -25,13 +23,12 @@ const CARGO_VERIFICADO = '1498403428982853692';
 const CARGO_NAO_VERIFICADO = '1498702244734832650';
 const CARGO_EXTRA = '1364330556434944091';
 
-// Bot online
+// BOT ONLINE
 client.once('ready', () => {
   console.log(`🤖 Bot online como ${client.user.tag}`);
 });
 
-
-// 👤 Quando alguém entra no servidor
+// ENTRADA DE MEMBRO
 client.on(Events.GuildMemberAdd, async member => {
   try {
     await member.roles.add(CARGO_NAO_VERIFICADO);
@@ -41,67 +38,70 @@ client.on(Events.GuildMemberAdd, async member => {
 });
 
 
-// 📩 Painel de verificação
+// =============================
+// 🔥 SLASH COMMAND /painel
+// =============================
 client.on(Events.InteractionCreate, async interaction => {
-  if (!interaction.isChatInputCommand()) return;
 
-  if (interaction.commandName === 'painel') {
+  // /painel
+  if (interaction.isChatInputCommand()) {
+    if (interaction.commandName === 'painel') {
 
-    const embed = new EmbedBuilder()
-      .setTitle('🔥 SISTEMA DE VERIFICAÇÃO 🔥')
-      .setDescription(
-        '🛡️ **Bem-vindo ao servidor!**\n\n' +
-        'Clique no botão abaixo para se verificar e liberar o acesso.\n\n' +
-        '⚠️ Apenas usuários verificados podem acessar os canais.'
-      )
-      .setColor('#ff0000')
-      .setThumbnail('https://i.postimg.cc/D0KR4xV5/Chat-GPT-Image-28-de-abr-de-2026-10-38-43.png')
-      .setImage('https://i.postimg.cc/8CYScdPd/Chat-GPT-Image-28-de-abr-de-2026-12-36-40.png')
-      .setFooter({ text: '🇧🇷 CAVERNA DOS GAMERS 🇧🇷 • Segurança ativa 🔒' });
+      const embed = new EmbedBuilder()
+        .setTitle('🔥 SISTEMA DE VERIFICAÇÃO 🔥')
+        .setDescription(
+          '🛡️ **Bem-vindo ao servidor!**\n\n' +
+          'Clique no botão abaixo para se verificar e liberar o acesso.\n\n' +
+          '⚠️ Apenas usuários verificados podem acessar os canais.'
+        )
+        .setColor('#ff0000')
+        .setThumbnail('https://i.postimg.cc/D0KR4xV5/Chat-GPT-Image-28-de-abr-de-2026-10-38-43.png')
+        .setImage('https://i.postimg.cc/8CYScdPd/Chat-GPT-Image-28-de-abr-de-2026-12-36-40.png')
+        .setFooter({ text: '🇧🇷 CAVERNA DOS GAMERS 🇧🇷 • Segurança ativa 🔒' });
 
-    const button = new ButtonBuilder()
-      .setCustomId('verificar')
-      .setLabel('🔒 Verificar-se')
-      .setStyle(ButtonStyle.Danger);
+      const button = new ButtonBuilder()
+        .setCustomId('verificar')
+        .setLabel('🔒 Verificar-se')
+        .setStyle(ButtonStyle.Danger);
 
-    const row = new ActionRowBuilder().addComponents(button);
+      const row = new ActionRowBuilder().addComponents(button);
 
-    await interaction.reply({
-      embeds: [embed],
-      components: [row]
-    });
+      return interaction.reply({
+        embeds: [embed],
+        components: [row]
+      });
+    }
   }
-});
 
+  // =============================
+  // 🔥 BOTÃO VERIFICAR
+  // =============================
+  if (interaction.isButton()) {
+    if (interaction.customId === 'verificar') {
 
-// 🔥 Clique no botão de verificação
-client.on(Events.InteractionCreate, async interaction => {
-  if (!interaction.isButton()) return;
+      const member = interaction.member;
 
-  if (interaction.customId === 'verificar') {
+      try {
+        await member.roles.add(CARGO_VERIFICADO);
+        await member.roles.add(CARGO_EXTRA);
+        await member.roles.remove(CARGO_NAO_VERIFICADO);
 
-    const member = interaction.member;
+        return interaction.reply({
+          content: '🔥 Você foi verificado com sucesso!',
+          ephemeral: true
+        });
 
-    try {
-      await member.roles.add(CARGO_VERIFICADO);
-      await member.roles.add(CARGO_EXTRA);
-      await member.roles.remove(CARGO_NAO_VERIFICADO);
+      } catch (err) {
+        console.log('Erro ao verificar usuário:', err);
 
-      await interaction.reply({
-        content: '🔥 Você foi verificado com sucesso!',
-        ephemeral: true
-      });
-
-    } catch (err) {
-      console.log('Erro ao verificar usuário:', err);
-
-      await interaction.reply({
-        content: '❌ Erro ao aplicar cargos.',
-        ephemeral: true
-      });
+        return interaction.reply({
+          content: '❌ Erro ao aplicar cargos.',
+          ephemeral: true
+        });
+      }
     }
   }
 });
 
-// 🔐 LOGIN (Render usa variável de ambiente)
+// LOGIN
 client.login(process.env.TOKEN);
