@@ -1,18 +1,24 @@
 require('dotenv').config();
-const { REST, Routes, SlashCommandBuilder } = require('discord.js');
+const { REST, Routes } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
 
-const commands = [
-  new SlashCommandBuilder()
-    .setName('painel')
-    .setDescription('Envia o painel de verificação')
-    .toJSON()
-];
+const commands = [];
+
+// pega todos os arquivos da pasta commands
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+  const command = require(`./commands/${file}`);
+  commands.push(command.data.toJSON());
+}
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 (async () => {
   try {
-    console.log('🔄 Registrando comando /painel...');
+    console.log('🔄 Registrando comandos...');
 
     await rest.put(
       Routes.applicationGuildCommands(
@@ -22,7 +28,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
       { body: commands }
     );
 
-    console.log('✅ /painel registrado com sucesso!');
+    console.log('✅ Comandos registrados com sucesso!');
   } catch (error) {
     console.error(error);
   }
