@@ -5,6 +5,11 @@ const commands = [
   new SlashCommandBuilder()
     .setName('painel')
     .setDescription('Envia o painel de verificação')
+    .toJSON(),
+
+  new SlashCommandBuilder()
+    .setName('ticket')
+    .setDescription('Abre o painel de tickets')
     .toJSON()
 ];
 
@@ -12,7 +17,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 (async () => {
   try {
-    console.log('🔄 Registrando comando /painel...');
+    console.log('🔄 Registrando comandos...');
 
     await rest.put(
       Routes.applicationGuildCommands(
@@ -22,7 +27,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
       { body: commands }
     );
 
-    console.log('✅ /painel registrado com sucesso!');
+    console.log('✅ Comandos registrados com sucesso!');
   } catch (error) {
     console.error(error);
   }
