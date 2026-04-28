@@ -105,3 +105,4 @@ client.on(Events.InteractionCreate, async interaction => {
 
 // 🔐 LOGIN (Render usa variável de ambiente)
 client.login(process.env.TOKEN);
+/*eu amo minha mulher*/
