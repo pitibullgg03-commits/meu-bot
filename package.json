@@ -1,16 +1,23 @@
 {
-  "name": "meu-bot",
+  "name": "caverna-bot",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pitibullgg03-commits/Caverna-bot.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/pitibullgg03-commits/Caverna-bot/issues"
+  },
+  "homepage": "https://github.com/pitibullgg03-commits/Caverna-bot#readme",
   "dependencies": {
     "discord.js": "^14.26.3",
     "dotenv": "^17.4.2"
