@@ -10,6 +10,12 @@ const {
   EmbedBuilder
 } = require('discord.js');
 
+// 🔐 CHECAGEM DE TOKEN (EVITA CRASH NO RENDER)
+if (!process.env.TOKEN) {
+  console.error("❌ TOKEN não encontrado no ambiente (Render Environment Variables)");
+  process.exit(1);
+}
+
 // CLIENT
 const client = new Client({
   intents: [
@@ -37,13 +43,11 @@ client.on(Events.GuildMemberAdd, async member => {
   }
 });
 
-
 // =============================
 // 🔥 SLASH COMMAND /painel
 // =============================
 client.on(Events.InteractionCreate, async interaction => {
 
-  // /painel
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === 'painel') {
 
@@ -103,5 +107,13 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 });
 
-// LOGIN
-client.login(process.env.TOKEN);
+// =============================
+// 🔑 LOGIN SEGURO
+// =============================
+client.login(process.env.TOKEN)
+  .then(() => {
+    console.log("🔑 Login realizado com sucesso");
+  })
+  .catch(err => {
+    console.error("❌ Erro no login do bot:", err);
+  });
