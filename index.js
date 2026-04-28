@@ -42,16 +42,16 @@ client.on(Events.GuildMemberAdd, async member => {
 
 
 // 📩 Painel de verificação
-client.on(Events.MessageCreate, async message => {
-  if (message.author.bot) return;
+client.on(Events.InteractionCreate, async interaction => {
+  if (!interaction.isChatInputCommand()) return;
 
-  if (message.content === '!painel') {
+  if (interaction.commandName === 'painel') {
 
     const embed = new EmbedBuilder()
       .setTitle('🔥 SISTEMA DE VERIFICAÇÃO 🔥')
       .setDescription(
         '🛡️ **Bem-vindo ao servidor!**\n\n' +
-        'Para liberar o acesso completo, clique no botão abaixo.\n\n' +
+        'Clique no botão abaixo para se verificar e liberar o acesso.\n\n' +
         '⚠️ Apenas usuários verificados podem acessar os canais.'
       )
       .setColor('#ff0000')
@@ -66,7 +66,7 @@ client.on(Events.MessageCreate, async message => {
 
     const row = new ActionRowBuilder().addComponents(button);
 
-    await message.channel.send({
+    await interaction.reply({
       embeds: [embed],
       components: [row]
     });
