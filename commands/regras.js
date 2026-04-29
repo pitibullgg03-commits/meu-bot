@@ -67,7 +67,7 @@ O descumprimento das regras pode resultar em aviso, mute, kick ou ban.
       )
 
       // 🖼️ BANNER
-      .setImage('https://i.postimg.cc/8CYScdPd/Chat-GPT-Image-28-de-abr-de-2026-12-36-40.png')
+      .setImage('https://i.postimg.cc/xdL05TYD/Chat-GPT-Image-29-de-abr-de-2026-10-24-24.png')
 
       // 👤 LOGO
       .setThumbnail('https://i.postimg.cc/D0KR4xV5/Chat-GPT-Image-28-de-abr-de-2026-10-38-43.png')
