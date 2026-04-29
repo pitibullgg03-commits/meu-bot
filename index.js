@@ -34,6 +34,15 @@ for (const file of commandFiles) {
 }
 
 // =============================
+// 🧠 CONFIG
+// =============================
+const CARGO_VERIFICADO = '1498403428982853692';
+const CARGO_NAO_VERIFICADO = '1498702244734832650';
+const CARGO_EXTRA = '1364330556434944091';
+const CARGO_STAFF = '1390278164122566736';
+const CATEGORY_ID = '1499028834153140284';
+
+// =============================
 // 🤖 BOT ONLINE
 // =============================
 client.once('ready', () => {
@@ -66,15 +75,11 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 
   // =============================
-  // 🔘 BOTÃO VERIFICAÇÃO
+  // 🔘 VERIFICAÇÃO
   // =============================
   if (interaction.isButton()) {
 
     if (interaction.customId === 'verificar') {
-
-      const CARGO_VERIFICADO = '1498403428982853692';
-      const CARGO_NAO_VERIFICADO = '1498702244734832650';
-      const CARGO_EXTRA = '1364330556434944091';
 
       const member = interaction.member;
 
@@ -100,34 +105,58 @@ client.on(Events.InteractionCreate, async interaction => {
   }
 
   // =============================
-  // 🎫 MENU DO TICKET (CORRIGIDO)
+  // 🎫 TICKET SYSTEM (PRO)
   // =============================
   if (interaction.isStringSelectMenu()) {
 
     if (interaction.customId === 'ticket_menu') {
 
       const option = interaction.values[0];
+      const member = interaction.member;
+      const guild = interaction.guild;
 
-      if (option === 'suporte') {
-        return interaction.reply({
-          content: '🛠️ Ticket de SUPORTE selecionado!',
-          ephemeral: true
-        });
-      }
+      // cria canal privado
+      const channel = await guild.channels.create({
+        name: `ticket-${member.user.username}`.toLowerCase(),
+        type: 0, // texto
+        parent: CATEGORY_ID,
+        permissionOverwrites: [
+          {
+            id: guild.id,
+            deny: ['ViewChannel']
+          },
+          {
+            id: member.id,
+            allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory']
+          },
+          {
+            id: CARGO_STAFF,
+            allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory']
+          }
+        ]
+      });
 
-      if (option === 'duvidas') {
-        return interaction.reply({
-          content: '❓ Ticket de DÚVIDAS selecionado!',
-          ephemeral: true
-        });
-      }
+      let titulo = '';
 
-      if (option === 'denuncias') {
-        return interaction.reply({
-          content: '🚨 Ticket de DENÚNCIA selecionado!',
-          ephemeral: true
-        });
-      }
+      if (option === 'suporte') titulo = '🛠️ SUPORTE';
+      if (option === 'duvidas') titulo = '❓ DÚVIDAS';
+      if (option === 'denuncias') titulo = '🚨 DENÚNCIA';
+
+      await channel.send({
+        content: `<@${member.id}> | <@&${CARGO_STAFF}>`,
+        embeds: [
+          {
+            title: `${titulo} - Ticket aberto`,
+            description: 'Explique seu problema e aguarde a staff.',
+            color: 0xff0000
+          }
+        ]
+      });
+
+      return interaction.reply({
+        content: `🎫 Ticket criado com sucesso: ${channel}`,
+        ephemeral: true
+      });
     }
   }
 });
