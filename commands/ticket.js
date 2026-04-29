@@ -5,17 +5,29 @@ const {
   StringSelectMenuBuilder
 } = require('discord.js');
 
+const CARGO_STAFF = '1390278164122566736';
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('ticket')
-    .setDescription('Abre o sistema de tickets'),
+    .setDescription('Abre o sistema de tickets (STAFF ONLY)'),
 
   async execute(interaction) {
+
+    const member = interaction.member;
+
+    // 🔒 BLOQUEIO DE STAFF
+    if (!member.roles.cache.has(CARGO_STAFF)) {
+      return interaction.reply({
+        content: '❌ Apenas a STAFF pode usar esse comando.',
+        ephemeral: true
+      });
+    }
 
     const embed = new EmbedBuilder()
       .setTitle('🎫 SISTEMA DE TICKETS')
       .setDescription(
-        'Escolha uma opção abaixo para abrir seu ticket:\n\n' +
+        'Escolha uma categoria:\n\n' +
         '🛠️ Suporte\n' +
         '❓ Dúvidas\n' +
         '🚨 Denúncias'
@@ -23,7 +35,7 @@ module.exports = {
       .setColor('#ff0000')
       .setImage('https://i.postimg.cc/8CYScdPd/Chat-GPT-Image-28-de-abr-de-2026-12-36-40.png')
       .setThumbnail('https://i.postimg.cc/D0KR4xV5/Chat-GPT-Image-28-de-abr-de-2026-10-38-43.png')
-      .setFooter({ text: '🇧🇷 CAVERNA DOS GAMERS - SISTEMA DE TICKETS' });
+      .setFooter({ text: 'CAVERNA DOS GAMERS' });
 
     const menu = new StringSelectMenuBuilder()
       .setCustomId('ticket_menu')
@@ -31,19 +43,16 @@ module.exports = {
       .addOptions(
         {
           label: 'Suporte',
-          description: 'Problemas técnicos ou ajuda geral',
           value: 'suporte',
           emoji: '🛠️'
         },
         {
           label: 'Dúvidas',
-          description: 'Perguntas gerais',
           value: 'duvidas',
           emoji: '❓'
         },
         {
           label: 'Denúncias',
-          description: 'Reportar usuários ou situações',
           value: 'denuncias',
           emoji: '🚨'
         }
@@ -51,7 +60,7 @@ module.exports = {
 
     const row = new ActionRowBuilder().addComponents(menu);
 
-    await interaction.reply({
+    return interaction.reply({
       embeds: [embed],
       components: [row]
     });
