@@ -42,6 +42,9 @@ const CARGO_EXTRA = '1364330556434944091';
 const CARGO_STAFF = '1390278164122566736';
 const CATEGORY_ID = '1499028834153140284';
 
+// 📊 LOG CHANNEL (NOVO)
+const LOG_CHANNEL_ID = '1475244668643180665';
+
 // =============================
 // 🤖 BOT ONLINE
 // =============================
@@ -115,10 +118,9 @@ client.on(Events.InteractionCreate, async interaction => {
       const member = interaction.member;
       const guild = interaction.guild;
 
-      // cria canal privado
       const channel = await guild.channels.create({
         name: `ticket-${member.user.username}`.toLowerCase(),
-        type: 0, // texto
+        type: 0,
         parent: CATEGORY_ID,
         permissionOverwrites: [
           {
@@ -158,6 +160,32 @@ client.on(Events.InteractionCreate, async interaction => {
         ephemeral: true
       });
     }
+  }
+});
+
+// =============================
+// 🗑️ LOG DE TICKET DELETADO (NOVO)
+// =============================
+client.on(Events.ChannelDelete, async channel => {
+
+  try {
+
+    const logChannel = await channel.guild.channels.fetch(LOG_CHANNEL_ID).catch(() => null);
+    if (!logChannel) return;
+
+    logChannel.send({
+      embeds: [
+        {
+          title: '🗑️ Ticket Fechado',
+          description: `Um ticket foi deletado.\n\n📁 Nome: **${channel.name}**\n🆔 ID: ${channel.id}`,
+          color: 0xff0000,
+          timestamp: new Date()
+        }
+      ]
+    });
+
+  } catch (err) {
+    console.log('Erro no log:', err);
   }
 });
 
