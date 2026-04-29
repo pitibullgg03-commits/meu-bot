@@ -34,7 +34,7 @@ module.exports = {
       )
       .setColor('#ff0000')
       .setImage('https://i.postimg.cc/8CYScdPd/Chat-GPT-Image-28-de-abr-de-2026-12-36-40.png')
-      .setThumbnail('https://i.postimg.cc/D0KR4xV5/Chat-GPT-Image-28-de-abr-de-2026-10-38-43.png')
+      .setThumbnail('https://i.postimg.cc/CxpXNMQd/Chat-GPT-Image-29-de-abr-de-2026-10-07-31.png')
       .setFooter({ text: 'CAVERNA DOS GAMERS' });
 
     const menu = new StringSelectMenuBuilder()
