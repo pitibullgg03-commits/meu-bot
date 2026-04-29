@@ -41,13 +41,6 @@ client.once('ready', () => {
 });
 
 // =============================
-// 👤 ENTRADA MEMBRO
-// =============================
-client.on(Events.GuildMemberAdd, async member => {
-  console.log(`👤 Novo membro: ${member.user.tag}`);
-});
-
-// =============================
 // 🎯 INTERAÇÕES
 // =============================
 client.on(Events.InteractionCreate, async interaction => {
@@ -59,21 +52,21 @@ client.on(Events.InteractionCreate, async interaction => {
 
     const command = client.commands.get(interaction.commandName);
 
-    if (!command) return;
-
-    try {
-      await command.execute(interaction);
-    } catch (err) {
-      console.error(err);
-      return interaction.reply({
-        content: '❌ Erro ao executar comando.',
-        ephemeral: true
-      });
+    if (command) {
+      try {
+        return await command.execute(interaction);
+      } catch (err) {
+        console.error(err);
+        return interaction.reply({
+          content: '❌ Erro ao executar comando.',
+          ephemeral: true
+        });
+      }
     }
   }
 
   // =============================
-  // 🔘 BOTÕES (VERIFICAÇÃO)
+  // 🔘 BOTÃO VERIFICAÇÃO
   // =============================
   if (interaction.isButton()) {
 
@@ -100,6 +93,38 @@ client.on(Events.InteractionCreate, async interaction => {
 
         return interaction.reply({
           content: '❌ Erro ao verificar usuário.',
+          ephemeral: true
+        });
+      }
+    }
+  }
+
+  // =============================
+  // 🎫 MENU DO TICKET (CORRIGIDO)
+  // =============================
+  if (interaction.isStringSelectMenu()) {
+
+    if (interaction.customId === 'ticket_menu') {
+
+      const option = interaction.values[0];
+
+      if (option === 'suporte') {
+        return interaction.reply({
+          content: '🛠️ Ticket de SUPORTE selecionado!',
+          ephemeral: true
+        });
+      }
+
+      if (option === 'duvidas') {
+        return interaction.reply({
+          content: '❓ Ticket de DÚVIDAS selecionado!',
+          ephemeral: true
+        });
+      }
+
+      if (option === 'denuncias') {
+        return interaction.reply({
+          content: '🚨 Ticket de DENÚNCIA selecionado!',
           ephemeral: true
         });
       }
