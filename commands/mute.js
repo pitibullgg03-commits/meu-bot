@@ -39,6 +39,7 @@ module.exports = {
 
   async execute(interaction) {
 
+    // 🔒 PERMISSÃO
     if (!interaction.member.roles.cache.has(STAFF_ROLE)) {
       return interaction.reply({
         content: '❌ Sem permissão',
@@ -54,7 +55,7 @@ module.exports = {
 
     if (!tempoMs) {
       return interaction.reply({
-        content: '❌ Tempo inválido (10m, 1h, 1d)',
+        content: '❌ Tempo inválido (use 10m, 1h, 1d)',
         ephemeral: true
       });
     }
@@ -69,7 +70,8 @@ module.exports = {
     }
 
     try {
-      // 🔇 TIMEOUT OFICIAL
+
+      // 🔇 TIMEOUT
       await member.timeout(tempoMs, motivo);
 
       await interaction.reply({
@@ -77,12 +79,35 @@ module.exports = {
         ephemeral: true
       });
 
-      // 📊 LOG
+      // =============================
+      // 📩 DM PARA USUÁRIO
+      // =============================
+      try {
+        const dmEmbed = new EmbedBuilder()
+          .setTitle('🔇 Você foi mutado')
+          .setColor('#ff0000')
+          .addFields(
+            { name: '📄 Motivo', value: motivo },
+            { name: '⏱️ Tempo', value: tempoInput },
+            { name: '👮 Staff', value: interaction.user.tag }
+          )
+          .setFooter({ text: 'Caverna dos Gamers' })
+          .setTimestamp();
+
+        await user.send({ embeds: [dmEmbed] });
+
+      } catch {
+        console.log('⚠️ Não foi possível enviar DM');
+      }
+
+      // =============================
+      // 📊 LOG NO CANAL
+      // =============================
       const logChannel = await interaction.guild.channels.fetch(LOG_CHANNEL_ID).catch(() => null);
 
       if (logChannel) {
-        const embed = new EmbedBuilder()
-          .setTitle('🔇 Usuário Mutado (Timeout)')
+        const logEmbed = new EmbedBuilder()
+          .setTitle('🔇 Usuário Mutado')
           .setColor('#ff0000')
           .addFields(
             { name: '👤 Usuário', value: `${user.tag} (${user.id})` },
@@ -92,14 +117,14 @@ module.exports = {
           )
           .setTimestamp();
 
-        logChannel.send({ embeds: [embed] });
+        logChannel.send({ embeds: [logEmbed] });
       }
 
     } catch (err) {
       console.error('❌ ERRO TIMEOUT:', err);
 
       return interaction.reply({
-        content: '❌ Erro ao mutar (timeout).',
+        content: '❌ Erro ao mutar usuário.',
         ephemeral: true
       });
     }
