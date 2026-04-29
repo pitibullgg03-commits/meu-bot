@@ -25,11 +25,14 @@ const client = new Client({
 });
 
 // =============================
-// 🔑 CONFIG
+// 🔑 CONFIG CARGOS
 // =============================
 const CARGO_VERIFICADO = '1498403428982853692';
 const CARGO_NAO_VERIFICADO = '1498702244734832650';
 const CARGO_EXTRA = '1364330556434944091';
+
+// 👮 STAFF (COLOQUE O ID DO CARGO AQUI)
+const CARGO_STAFF = '1390278164122566736';
 
 // =============================
 // 🤖 BOT ONLINE
@@ -55,11 +58,21 @@ client.on(Events.GuildMemberAdd, async member => {
 client.on(Events.InteractionCreate, async interaction => {
 
   // =============================
-  // 🔥 /painel
+  // 🔥 /painel (SÓ STAFF)
   // =============================
   if (interaction.isChatInputCommand()) {
 
     if (interaction.commandName === 'painel') {
+
+      const member = interaction.member;
+
+      // 🔒 VERIFICAÇÃO STAFF
+      if (!member.roles.cache.has(CARGO_STAFF)) {
+        return interaction.reply({
+          content: '❌ Você não tem permissão para usar esse comando.',
+          ephemeral: true
+        });
+      }
 
       const embed = new EmbedBuilder()
         .setTitle('🔥 SISTEMA DE VERIFICAÇÃO 🔥')
