@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { STAFF_ROLE, LOG_CHANNEL_ID, MUTE_ROLE } = require('../config/modConfig');
+const { STAFF_ROLE, LOG_CHANNEL_ID } = require('../config/modConfig');
 
 function parseTempo(tempo) {
   const regex = /^(\d+)(m|h|d)$/;
@@ -20,29 +20,28 @@ function parseTempo(tempo) {
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('mute')
-    .setDescription('Mutar usuário temporariamente')
+    .setDescription('Mutar usuário (timeout oficial)')
     .addUserOption(opt =>
       opt.setName('usuario')
-        .setDescription('Usuário a ser mutado')
+        .setDescription('Usuário')
         .setRequired(true)
     )
     .addStringOption(opt =>
       opt.setName('tempo')
-        .setDescription('Tempo (ex: 10m, 1h, 1d)')
+        .setDescription('Tempo (10m, 1h, 1d)')
         .setRequired(true)
     )
     .addStringOption(opt =>
       opt.setName('motivo')
-        .setDescription('Motivo do mute')
+        .setDescription('Motivo')
         .setRequired(true)
     ),
 
   async execute(interaction) {
 
-    // 🔒 Permissão
     if (!interaction.member.roles.cache.has(STAFF_ROLE)) {
       return interaction.reply({
-        content: '❌ Você não tem permissão.',
+        content: '❌ Sem permissão',
         ephemeral: true
       });
     }
@@ -55,7 +54,7 @@ module.exports = {
 
     if (!tempoMs) {
       return interaction.reply({
-        content: '❌ Tempo inválido. Use: 10m, 1h ou 1d',
+        content: '❌ Tempo inválido (10m, 1h, 1d)',
         ephemeral: true
       });
     }
@@ -64,17 +63,17 @@ module.exports = {
 
     if (!member) {
       return interaction.reply({
-        content: '❌ Usuário não encontrado.',
+        content: '❌ Usuário não encontrado',
         ephemeral: true
       });
     }
 
     try {
-      // 🔇 aplicar mute
-      await member.roles.add(MUTE_ROLE);
+      // 🔇 TIMEOUT OFICIAL
+      await member.timeout(tempoMs, motivo);
 
       await interaction.reply({
-        content: `🔇 ${user.tag} foi mutado por ${tempoInput}`,
+        content: `🔇 ${user.tag} mutado por ${tempoInput}`,
         ephemeral: true
       });
 
@@ -83,7 +82,7 @@ module.exports = {
 
       if (logChannel) {
         const embed = new EmbedBuilder()
-          .setTitle('🔇 Usuário Mutado')
+          .setTitle('🔇 Usuário Mutado (Timeout)')
           .setColor('#ff0000')
           .addFields(
             { name: '👤 Usuário', value: `${user.tag} (${user.id})` },
@@ -96,36 +95,11 @@ module.exports = {
         logChannel.send({ embeds: [embed] });
       }
 
-      // ⏳ DESMUTE AUTOMÁTICO
-      setTimeout(async () => {
-        try {
-          await member.roles.remove(MUTE_ROLE);
-
-          const logChannel = await interaction.guild.channels.fetch(LOG_CHANNEL_ID).catch(() => null);
-
-          if (logChannel) {
-            const embed = new EmbedBuilder()
-              .setTitle('🔊 Usuário Desmutado')
-              .setColor('#00ff00')
-              .addFields(
-                { name: '👤 Usuário', value: `${user.tag}` },
-                { name: '⏱️ Tempo cumprido', value: tempoInput }
-              )
-              .setTimestamp();
-
-            logChannel.send({ embeds: [embed] });
-          }
-
-        } catch (err) {
-          console.log('Erro ao desmutar:', err);
-        }
-      }, tempoMs);
-
     } catch (err) {
-      console.error(err);
+      console.error('❌ ERRO TIMEOUT:', err);
 
       return interaction.reply({
-        content: '❌ Erro ao mutar usuário.',
+        content: '❌ Erro ao mutar (timeout).',
         ephemeral: true
       });
     }
