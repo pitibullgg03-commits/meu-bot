@@ -1,4 +1,5 @@
 require('dotenv').config();
+const fs = require('fs');
 
 const {
   Client,
@@ -30,9 +31,19 @@ const client = new Client({
 const CARGO_VERIFICADO = '1498403428982853692';
 const CARGO_NAO_VERIFICADO = '1498702244734832650';
 const CARGO_EXTRA = '1364330556434944091';
-
-// 👮 STAFF (COLOQUE O ID DO CARGO AQUI)
 const CARGO_STAFF = '1390278164122566736';
+
+// =============================
+// 📦 CARREGAR COMMANDS (IMPORTANTE)
+// =============================
+client.commands = new Map();
+
+const commandFiles = fs.readdirSync('./commands').filter(f => f.endsWith('.js'));
+
+for (const file of commandFiles) {
+  const command = require(`./commands/${file}`);
+  client.commands.set(command.data.name, command);
+}
 
 // =============================
 // 🤖 BOT ONLINE
@@ -58,10 +69,26 @@ client.on(Events.GuildMemberAdd, async member => {
 client.on(Events.InteractionCreate, async interaction => {
 
   // =============================
-  // 🔥 /painel (SÓ STAFF)
+  // 📌 SLASH COMMANDS (/ticket, etc)
   // =============================
   if (interaction.isChatInputCommand()) {
 
+    // 🔥 COMANDOS DA PASTA commands/
+    const command = client.commands.get(interaction.commandName);
+
+    if (command) {
+      try {
+        return await command.execute(interaction);
+      } catch (err) {
+        console.error(err);
+        return interaction.reply({
+          content: '❌ Erro ao executar comando.',
+          ephemeral: true
+        });
+      }
+    }
+
+    // 🔥 /painel (FIXO NO INDEX)
     if (interaction.commandName === 'painel') {
 
       const member = interaction.member;
