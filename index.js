@@ -4,11 +4,7 @@ const fs = require('fs');
 const {
   Client,
   GatewayIntentBits,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  Events,
-  EmbedBuilder
+  Events
 } = require('discord.js');
 
 // 🔐 TOKEN CHECK
@@ -26,15 +22,7 @@ const client = new Client({
 });
 
 // =============================
-// 🔑 CONFIG CARGOS
-// =============================
-const CARGO_VERIFICADO = '1498403428982853692';
-const CARGO_NAO_VERIFICADO = '1498702244734832650';
-const CARGO_EXTRA = '1364330556434944091';
-const CARGO_STAFF = '1390278164122566736';
-
-// =============================
-// 📦 CARREGAR COMMANDS (IMPORTANTE)
+// 📦 CARREGAR COMMANDS
 // =============================
 client.commands = new Map();
 
@@ -56,11 +44,7 @@ client.once('ready', () => {
 // 👤 ENTRADA MEMBRO
 // =============================
 client.on(Events.GuildMemberAdd, async member => {
-  try {
-    await member.roles.add(CARGO_NAO_VERIFICADO);
-  } catch (err) {
-    console.log('Erro ao adicionar cargo:', err);
-  }
+  console.log(`👤 Novo membro: ${member.user.tag}`);
 });
 
 // =============================
@@ -69,70 +53,35 @@ client.on(Events.GuildMemberAdd, async member => {
 client.on(Events.InteractionCreate, async interaction => {
 
   // =============================
-  // 📌 SLASH COMMANDS (/ticket, etc)
+  // 📌 SLASH COMMANDS
   // =============================
   if (interaction.isChatInputCommand()) {
 
-    // 🔥 COMANDOS DA PASTA commands/
     const command = client.commands.get(interaction.commandName);
 
-    if (command) {
-      try {
-        return await command.execute(interaction);
-      } catch (err) {
-        console.error(err);
-        return interaction.reply({
-          content: '❌ Erro ao executar comando.',
-          ephemeral: true
-        });
-      }
-    }
+    if (!command) return;
 
-    // 🔥 /painel (FIXO NO INDEX)
-    if (interaction.commandName === 'painel') {
-
-      const member = interaction.member;
-
-      // 🔒 VERIFICAÇÃO STAFF
-      if (!member.roles.cache.has(CARGO_STAFF)) {
-        return interaction.reply({
-          content: '❌ Você não tem permissão para usar esse comando.',
-          ephemeral: true
-        });
-      }
-
-      const embed = new EmbedBuilder()
-        .setTitle('🔥 SISTEMA DE VERIFICAÇÃO 🔥')
-        .setDescription(
-          '🛡️ Bem-vindo ao servidor!\n\n' +
-          'Clique no botão abaixo para se verificar.\n\n' +
-          '⚠️ Apenas usuários verificados podem acessar os canais.'
-        )
-        .setColor('#ff0000')
-        .setThumbnail('https://i.postimg.cc/D0KR4xV5/Chat-GPT-Image-28-de-abr-de-2026-10-38-43.png')
-        .setImage('https://i.postimg.cc/8CYScdPd/Chat-GPT-Image-28-de-abr-de-2026-12-36-40.png')
-        .setFooter({ text: '🇧🇷 CAVERNA DOS GAMERS 🇧🇷' });
-
-      const button = new ButtonBuilder()
-        .setCustomId('verificar')
-        .setLabel('🔒 Verificar-se')
-        .setStyle(ButtonStyle.Danger);
-
-      const row = new ActionRowBuilder().addComponents(button);
-
+    try {
+      await command.execute(interaction);
+    } catch (err) {
+      console.error(err);
       return interaction.reply({
-        embeds: [embed],
-        components: [row]
+        content: '❌ Erro ao executar comando.',
+        ephemeral: true
       });
     }
   }
 
   // =============================
-  // 🔘 BOTÃO VERIFICAR
+  // 🔘 BOTÕES (VERIFICAÇÃO)
   // =============================
   if (interaction.isButton()) {
 
     if (interaction.customId === 'verificar') {
+
+      const CARGO_VERIFICADO = '1498403428982853692';
+      const CARGO_NAO_VERIFICADO = '1498702244734832650';
+      const CARGO_EXTRA = '1364330556434944091';
 
       const member = interaction.member;
 
