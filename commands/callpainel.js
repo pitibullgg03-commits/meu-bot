@@ -19,7 +19,7 @@ module.exports = {
     const embed = new EmbedBuilder()
       .setTitle('🪨 SISTEMA DE PROGRESSÃO • CAVERNA DOS GAMERS')
       .setColor('#ff0000')
-      .setThumbnail('hhttps://i.postimg.cc/D0KR4xV5/Chat-GPT-Image-28-de-abr-de-2026-10-38-43.png')
+      .setThumbnail('https://i.postimg.cc/D0KR4xV5/Chat-GPT-Image-28-de-abr-de-2026-10-38-43.png')
       .setImage('https://i.postimg.cc/7Z41Db50/Chat-GPT-Image-1-de-mai-de-2026-13-17-57.png')
 
       .setDescription(
