@@ -17,9 +17,13 @@ if (!process.env.TOKEN) {
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildVoiceStates // 🔥 IMPORTANTE PRO SISTEMA DE CALL
   ]
 });
+
+// 🔥 ATIVAR SISTEMA DE CALL (AQUI É O LUGAR CERTO)
+require('./events/voiceLevels')(client);
 
 // =============================
 // 📦 CARREGAR COMMANDS
@@ -41,7 +45,7 @@ const CARGO_NAO_VERIFICADO = '1498702244734832650';
 const CARGO_STAFF = '1390278164122566736';
 const CATEGORY_ID = '1499028834153140284';
 
-// 📊 LOG CHANNEL (NOVO)
+// 📊 LOG CHANNEL
 const LOG_CHANNEL_ID = '1475244668643180665';
 
 // =============================
@@ -56,9 +60,7 @@ client.once('ready', () => {
 // =============================
 client.on(Events.InteractionCreate, async interaction => {
 
-  // =============================
   // 📌 SLASH COMMANDS
-  // =============================
   if (interaction.isChatInputCommand()) {
 
     const command = client.commands.get(interaction.commandName);
@@ -76,9 +78,7 @@ client.on(Events.InteractionCreate, async interaction => {
     }
   }
 
-  // =============================
   // 🔘 VERIFICAÇÃO
-  // =============================
   if (interaction.isButton()) {
 
     if (interaction.customId === 'verificar') {
@@ -105,9 +105,7 @@ client.on(Events.InteractionCreate, async interaction => {
     }
   }
 
-  // =============================
-  // 🎫 TICKET SYSTEM (PRO)
-  // =============================
+  // 🎫 TICKET SYSTEM
   if (interaction.isStringSelectMenu()) {
 
     if (interaction.customId === 'ticket_menu') {
@@ -162,7 +160,7 @@ client.on(Events.InteractionCreate, async interaction => {
 });
 
 // =============================
-// 🗑️ LOG DE TICKET DELETADO (NOVO)
+// 🗑️ LOG DE TICKET DELETADO
 // =============================
 client.on(Events.ChannelDelete, async channel => {
 
@@ -175,7 +173,7 @@ client.on(Events.ChannelDelete, async channel => {
       embeds: [
         {
           title: '🗑️ Ticket Fechado',
-          description: `Um ticket foi deletado.\n\n📁 Nome: **${channel.name}**\n🆔 ID: ${channel.id}`,
+          description: `📁 Nome: **${channel.name}**\n🆔 ID: ${channel.id}`,
           color: 0xff0000,
           timestamp: new Date()
         }
