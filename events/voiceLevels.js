@@ -15,6 +15,35 @@ function saveData(data) {
 
 module.exports = (client) => {
 
+  // =====================================
+  // 🔥 SALVAMENTO AUTOMÁTICO (ANTI PERDA)
+  // =====================================
+  setInterval(() => {
+
+    const data = getData();
+
+    for (const [userId, entrou] of tempoCall.entries()) {
+
+      const agora = Date.now();
+      const tempo = agora - entrou;
+
+      if (!data[userId]) {
+        data[userId] = { tempo: 0 };
+      }
+
+      data[userId].tempo += tempo;
+
+      // atualiza o tempo inicial
+      tempoCall.set(userId, agora);
+    }
+
+    saveData(data);
+
+  }, 60000); // a cada 1 minuto
+
+  // =====================================
+  // 🎧 SISTEMA DE CALL
+  // =====================================
   client.on('voiceStateUpdate', async (oldState, newState) => {
 
     const userId = newState.id;
@@ -64,34 +93,32 @@ module.exports = (client) => {
 
       if (!cargoFinal) return;
 
-      // ✅ já tem o cargo
+      // já tem o cargo
       if (member.roles.cache.has(cargoFinal)) return;
 
       try {
 
-        // 🔄 remove todos cargos antigos
+        // remove cargos antigos
         for (const role of rolesConfig) {
           if (member.roles.cache.has(role.cargo)) {
             await member.roles.remove(role.cargo);
           }
         }
 
-        // ➕ adiciona novo
+        // adiciona novo
         await member.roles.add(cargoFinal);
 
-        // 🎉 CANAL DE LOG (melhor que systemChannel)
+        // mensagem no servidor
         const canal = oldState.guild.systemChannel;
 
         if (canal) {
-          canal.send({
-            content: `🎉 ${member} evoluiu para **${nomeCargo}**! 🏆`
-          });
+          canal.send(`🎉 ${member} evoluiu para **${nomeCargo}**! 🏆`);
         }
 
-        // 🔔 DM
-        await member.send({
-          content: `🏆 Você subiu para **${nomeCargo}** na Caverna dos Gamers! Continue evoluindo 🔥`
-        }).catch(() => {});
+        // DM
+        await member.send(
+          `🏆 Você subiu para **${nomeCargo}** na Caverna dos Gamers! 🔥`
+        ).catch(() => {});
 
       } catch (err) {
         console.log('Erro ao atualizar cargo:', err);
