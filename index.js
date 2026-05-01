@@ -87,7 +87,6 @@ client.on(Events.InteractionCreate, async interaction => {
 
       try {
         await member.roles.add(CARGO_VERIFICADO);
-        await member.roles.add(CARGO_EXTRA);
         await member.roles.remove(CARGO_NAO_VERIFICADO);
 
         return interaction.reply({
