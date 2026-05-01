@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const fs = require('fs');
+const rolesConfig = require('../config/callRoles');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -31,14 +32,52 @@ module.exports = {
     const horas = Math.floor(tempo / 1000 / 60 / 60);
     const minutos = Math.floor((tempo / 1000 / 60) % 60);
 
+    const horasTotal = tempo / 1000 / 60 / 60;
+
+    // 🔥 descobrir cargo atual e próximo
+    let cargoAtual = 'Nenhum';
+    let proximoCargo = null;
+
+    for (let i = 0; i < rolesConfig.length; i++) {
+
+      if (horasTotal >= rolesConfig[i].tempo) {
+        cargoAtual = rolesConfig[i].nome;
+      } else {
+        proximoCargo = rolesConfig[i];
+        break;
+      }
+    }
+
+    let progresso = '';
+    let faltaTexto = 'Você atingiu o nível máximo 🚀';
+
+    if (proximoCargo) {
+
+      const falta = (proximoCargo.tempo - horasTotal).toFixed(1);
+
+      faltaTexto = `Faltam **${falta}h** para ${proximoCargo.nome}`;
+
+      // 📊 barra de progresso (10 blocos)
+      const porcentagem = horasTotal / proximoCargo.tempo;
+      const totalBlocos = 10;
+      const preenchido = Math.floor(porcentagem * totalBlocos);
+
+      progresso = '🟥'.repeat(preenchido) + '⬛'.repeat(totalBlocos - preenchido);
+    }
+
     const embed = new EmbedBuilder()
       .setTitle('📊 Seu Tempo na Caverna')
       .setColor('#ff0000')
       .setThumbnail(interaction.user.displayAvatarURL())
+
       .addFields(
-        { name: '⏱️ Tempo total', value: `${horas}h ${minutos}m` }
+        { name: '⏱️ Tempo total', value: `${horas}h ${minutos}m`, inline: true },
+        { name: '🏆 Cargo atual', value: `${cargoAtual}`, inline: true },
+        { name: '📈 Progresso', value: progresso || 'MAX', inline: false },
+        { name: '🎯 Próximo nível', value: faltaTexto, inline: false }
       )
-      .setFooter({ text: '🔥 Continue farmando tempo!' })
+
+      .setFooter({ text: '🔥 Continue evoluindo na caverna!' })
       .setTimestamp();
 
     interaction.reply({ embeds: [embed], ephemeral: true });

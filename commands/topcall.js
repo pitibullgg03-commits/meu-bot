@@ -7,6 +7,7 @@ const {
 } = require('discord.js');
 
 const fs = require('fs');
+const rolesConfig = require('../config/callRoles');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -38,6 +39,18 @@ module.exports = {
     const porPagina = 10;
     let pagina = 0;
 
+    const getCargo = (horas) => {
+      let nome = 'Sem cargo';
+
+      for (const role of rolesConfig) {
+        if (horas >= role.tempo) {
+          nome = role.nome;
+        }
+      }
+
+      return nome;
+    };
+
     const gerarEmbed = (paginaAtual) => {
 
       const inicio = paginaAtual * porPagina;
@@ -47,15 +60,19 @@ module.exports = {
       let descricao = '';
 
       for (let i = 0; i < pageData.length; i++) {
+
         const userId = pageData[i][0];
         const tempo = pageData[i][1].tempo;
 
-        const horas = (tempo / 1000 / 60 / 60).toFixed(1);
+        const horas = tempo / 1000 / 60 / 60;
+        const horasFormatado = horas.toFixed(1);
 
         const posicao = inicio + i;
         const medalha = medalhas[posicao] || `**${posicao + 1}º**`;
 
-        descricao += `${medalha} <@${userId}> — **${horas}h**\n`;
+        const cargo = getCargo(horas);
+
+        descricao += `${medalha} <@${userId}> — **${horasFormatado}h**\n🏅 ${cargo}\n\n`;
       }
 
       return new EmbedBuilder()
@@ -90,7 +107,6 @@ module.exports = {
 
     collector.on('collect', async i => {
 
-      // 🔒 só quem executou usa
       if (i.user.id !== interaction.user.id) {
         return i.reply({
           content: '❌ Só quem abriu pode usar os botões.',
