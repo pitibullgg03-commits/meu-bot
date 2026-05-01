@@ -4,13 +4,34 @@ const rolesConfig = require('../config/callRoles');
 const path = './database/users.json';
 const tempoCall = new Map();
 
+// 🔥 GARANTE QUE A PASTA E ARQUIVO EXISTEM
+if (!fs.existsSync('./database')) {
+  fs.mkdirSync('./database');
+}
+
+if (!fs.existsSync(path)) {
+  fs.writeFileSync(path, '{}');
+}
+
+// =============================
+// 📦 FUNÇÕES DE BANCO SEGURAS
+// =============================
 function getData() {
-  if (!fs.existsSync(path)) return {};
-  return JSON.parse(fs.readFileSync(path));
+  try {
+    const raw = fs.readFileSync(path);
+    return raw.length ? JSON.parse(raw) : {};
+  } catch (err) {
+    console.log('Erro ao ler database:', err);
+    return {};
+  }
 }
 
 function saveData(data) {
-  fs.writeFileSync(path, JSON.stringify(data, null, 2));
+  try {
+    fs.writeFileSync(path, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.log('Erro ao salvar database:', err);
+  }
 }
 
 module.exports = (client) => {
@@ -33,13 +54,14 @@ module.exports = (client) => {
 
       data[userId].tempo += tempo;
 
-      // atualiza o tempo inicial
       tempoCall.set(userId, agora);
     }
 
     saveData(data);
 
-  }, 60000); // a cada 1 minuto
+    console.log('💾 Salvando tempo automaticamente...');
+
+  }, 60000);
 
   // =====================================
   // 🎧 SISTEMA DE CALL
@@ -48,16 +70,15 @@ module.exports = (client) => {
 
     const userId = newState.id;
 
-    // 🔥 ENTROU NA CALL
+    // 🔥 ENTROU
     if (!oldState.channelId && newState.channelId) {
 
-      // evita AFK
       if (newState.channel?.name.toLowerCase().includes('afk')) return;
 
       tempoCall.set(userId, Date.now());
     }
 
-    // 🔥 SAIU DA CALL
+    // 🔥 SAIU
     if (oldState.channelId && !newState.channelId) {
 
       const entrou = tempoCall.get(userId);
@@ -93,12 +114,11 @@ module.exports = (client) => {
 
       if (!cargoFinal) return;
 
-      // já tem o cargo
       if (member.roles.cache.has(cargoFinal)) return;
 
       try {
 
-        // remove cargos antigos
+        // remove antigos
         for (const role of rolesConfig) {
           if (member.roles.cache.has(role.cargo)) {
             await member.roles.remove(role.cargo);
@@ -108,14 +128,12 @@ module.exports = (client) => {
         // adiciona novo
         await member.roles.add(cargoFinal);
 
-        // mensagem no servidor
         const canal = oldState.guild.systemChannel;
 
         if (canal) {
           canal.send(`🎉 ${member} evoluiu para **${nomeCargo}**! 🏆`);
         }
 
-        // DM
         await member.send(
           `🏆 Você subiu para **${nomeCargo}** na Caverna dos Gamers! 🔥`
         ).catch(() => {});
