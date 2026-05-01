@@ -1,4 +1,6 @@
 require('dotenv').config();
+require('./config/database')(); // 🔥 CONEXÃO MONGO
+
 const fs = require('fs');
 
 const {
@@ -22,7 +24,7 @@ const client = new Client({
   ]
 });
 
-// 🔥 ATIVAR SISTEMA DE CALL (AQUI É O LUGAR CERTO)
+// 🔥 ATIVAR SISTEMA DE CALL
 require('./events/voiceLevels')(client);
 
 // =============================
