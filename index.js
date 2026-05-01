@@ -1,5 +1,4 @@
 require('dotenv').config();
-require('./config/database')(); // 🔥 CONEXÃO MONGO
 
 const fs = require('fs');
 
@@ -15,17 +14,13 @@ if (!process.env.TOKEN) {
   process.exit(1);
 }
 
-// CLIENT
+// CLIENT (SIMPLES E ESTÁVEL)
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildVoiceStates // 🔥 IMPORTANTE PRO SISTEMA DE CALL
+    GatewayIntentBits.GuildMembers
   ]
 });
-
-// 🔥 ATIVAR SISTEMA DE CALL
-require('./events/voiceLevels')(client);
 
 // =============================
 // 📦 CARREGAR COMMANDS
@@ -167,7 +162,6 @@ client.on(Events.InteractionCreate, async interaction => {
 client.on(Events.ChannelDelete, async channel => {
 
   try {
-
     const logChannel = await channel.guild.channels.fetch(LOG_CHANNEL_ID).catch(() => null);
     if (!logChannel) return;
 
